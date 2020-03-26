@@ -64,7 +64,7 @@ GVLについては、スレッドセーフでないC拡張を考慮してのこ�
 
 - 親側で通信用のIO.pipeオブジェクトを生成しておく
   - forkすると、pipeのファイルディスクリプタを子プロセスでも引き継ぐので、親子間で通信ができる
-- 子プロセスをforkする 
+- 子プロセスをforkする
   - forkした後にpipeの使わない方はcloseしておく
   - 子では、親からpipeに書き込みがあるまでblockingして待つ
 - 親では、pipeに書き込むことで子プロセスに処理を依頼する
@@ -78,7 +78,7 @@ GVLについては、スレッドセーフでないC拡張を考慮してのこ�
 
 図にするとこんなイメージ
 
-![Flowchart (5).png](https://qiita-image-store.s3.amazonaws.com/0/64/3e46b6d8-ae5f-dea8-f171-f4588e37cde5.png)
+![Flowchart (5).png](https://yuroyoro.github.io/exported-from-qiita/images/3e46b6d8-ae5f-dea8-f171-f4588e37cde5.png)
 
 
 コードはこんなふうになります(いろいろさぼってます)。
@@ -116,7 +116,7 @@ class Worker
         args = read_from_parent
 
         # stopが飛んで来たらloopを抜けて子プロセスを終了させる
-        break if args == :stop 
+        break if args == :stop
 
         # 処理を実行する
         result = @block.call(*args)
@@ -242,7 +242,7 @@ workers = 4.times.map{
 workers.map(&:run).each(&:join)
 
 # 処理開始
-threads = workers.map{|worker| 
+threads = workers.map{|worker|
   worker.execute(*args)
 }
 
@@ -261,9 +261,9 @@ workers.each(&:stop)
 
 |                | user       | system       | cpu      | total       |
 |:---------------|-----------:|-------------:|---------:|------------:|
-| 直列に実行     | 1.68s user | 0.74s system | 40% cpu  | 6.009 total | 
-| Thread         | 1.95s user | 0.79s system | 279% cpu | 0.979 total | 
-| マルチプロセス | 3.38s user | 0.97s system | 322% cpu | 1.345 total | 
+| 直列に実行     | 1.68s user | 0.74s system | 40% cpu  | 6.009 total |
+| Thread         | 1.95s user | 0.79s system | 279% cpu | 0.979 total |
+| マルチプロセス | 3.38s user | 0.97s system | 322% cpu | 1.345 total |
 
 直列に実行して6秒だったのが、Thread化で1秒を切るくらいまで高速化していますね。cpu使用率も279%でコアを活用できていることが分かります。一方、マルチプロセス化は高速化しているがThreadよりは遅い。これは、ダウンロードする処理がボトルネックになっており、IOバウンドな処理だからと推測されます。
 
@@ -271,9 +271,9 @@ workers.each(&:stop)
 
 |                | user         | system        | cpu      | total         |
 |:---------------|-------------:|--------------:|---------:|--------------:|
-| 直列に実行     | 133.38s user | 13.01s system | 96% cpu  | 2:31.49 total | 
-| Thread         | 134.94s user | 14.34s system | 101% cpu | 2:27.46 total | 
-| マルチプロセス | 180.08s user | 16.32s system | 639% cpu | 30.720 total  | 
+| 直列に実行     | 133.38s user | 13.01s system | 96% cpu  | 2:31.49 total |
+| Thread         | 134.94s user | 14.34s system | 101% cpu | 2:27.46 total |
+| マルチプロセス | 180.08s user | 16.32s system | 639% cpu | 30.720 total  |
 
 Threadでは直列に実行した場合とほとんど時間がかわらず、cpu死霊率もあがりません。いっぽうマルチプロセスは、cpu使用率も上がって7倍ほど高速になっています。
 

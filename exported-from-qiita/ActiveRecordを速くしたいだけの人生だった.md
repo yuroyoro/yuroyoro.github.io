@@ -91,10 +91,10 @@ stackprof`を用いた方法については後述する。
 さて、実際にRails3.2とRails4.2でそれぞれProfileを取得してみて、傾向を比較してみることにした。
 
 Rails3
-![ruby_prof_rails3.png](https://qiita-image-store.s3.amazonaws.com/0/64/c6451391-5b6a-dc19-3d53-e6a3fb57b929.png)
+![ruby_prof_rails3.png](https://yuroyoro.github.io/exported-from-qiita/images/c6451391-5b6a-dc19-3d53-e6a3fb57b929.png)
 
 Rails4
-![ruby_prof_rails4.png](https://qiita-image-store.s3.amazonaws.com/0/64/b105775f-fe3a-88d0-4ae9-1c8312e4e2be.png)
+![ruby_prof_rails4.png](https://yuroyoro.github.io/exported-from-qiita/images/b105775f-fe3a-88d0-4ae9-1c8312e4e2be.png)
 
 
 上の画像は、取得したProfileをqcahegrindに喰わせて、self(そのメソッドのみの処理時間の合計)でソートした結果である。
@@ -144,12 +144,12 @@ cloneしたあとに、`bundle install`して依存をいれる。
 Issue #12537でtenderloveが、[ActiveRecord::Associations::Preloader::ThroughAssociation#associated_records_by_owner
 ](https://github.com/rails/rails/blob/19b871a0902c4ec3e460a38f41583a7855edd81a/activerecord/lib/active_record/associations/preloader/through_association.rb#L13) に手を入れているので、ここを中心に見ていくこととする。
 
-![stackprof_1.png](https://qiita-image-store.s3.amazonaws.com/0/64/02d5e40f-4beb-122c-52f9-618503d9f7b4.png)
+![stackprof_1.png](https://yuroyoro.github.io/exported-from-qiita/images/02d5e40f-4beb-122c-52f9-618503d9f7b4.png)
 
 
 `ActiveRecord::Associations::Preloader::ThroughAssociation#associated_records_by_owner`をクリックすると、calleeにそこから呼出しているメソッドが表示される。この中で実行時間の多くを`ActiveRecord::Associations::collectionassociation#reader`メソッドが占めていることがわかるので、さらに辿っていく。
 
-![stackprof_2.png](https://qiita-image-store.s3.amazonaws.com/0/64/820b520f-bfbd-f558-4ff1-090c2d39842c.png)
+![stackprof_2.png](https://yuroyoro.github.io/exported-from-qiita/images/820b520f-bfbd-f558-4ff1-090c2d39842c.png)
 
 
 `ActiveRecord::Delegation::ClassMethods#create` -> `ActiveRecord::Associations::CollectionProxy#initialize` まで到達した。どうやら`CollectionProxy`のインスタンス化はコストの高い処理のようだ。
@@ -158,7 +158,7 @@ Issue #12537でtenderloveが、[ActiveRecord::Associations::Preloader::ThroughAs
 
 実際、`associated_records_by_owner`メソッドでは`CollectionAssociation#reader`を2回呼び出しており、この2回の呼びだしがメソッド実行時間中の7割を占めていることがプロファイル結果から読み取れる。
 
-![stackprof_3.png](https://qiita-image-store.s3.amazonaws.com/0/64/49feb9e3-a79a-2448-74cf-f53aba1a9685.png)
+![stackprof_3.png](https://yuroyoro.github.io/exported-from-qiita/images/49feb9e3-a79a-2448-74cf-f53aba1a9685.png)
 
 
 
